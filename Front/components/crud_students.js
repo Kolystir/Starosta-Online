@@ -18,7 +18,7 @@ $(document).ready(function() {
 
             $(".delete-btn").click(function() {
                 var userId = $(this).data("id");
-                if (confirm("Вы уверены, что хотите удалить этого студента?")) {
+                if (confirm("Вы уверены что хотите удалить этого студента?")) {
                     $.ajax({
                         url: "http://localhost:8000/users/" + userId,
                         type: "DELETE",
@@ -32,6 +32,8 @@ $(document).ready(function() {
                     });
                 }
             });
+            
+            
         });
     }
 

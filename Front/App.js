@@ -7,6 +7,7 @@ $(document).ready(function() {
     $.getScript("Front/components/crud_students.js", function() {
         // Скрипт загружен и выполнен
     });
+    
     // Подключаем файл footer.js
     $.getScript("Front/paneli/footer.js", function() {
         // Скрипт загружен и выполнен
