@@ -1,39 +1,22 @@
 $(document).ready(function() {
-    function loadStudents() {
-        $.getJSON("http://localhost:8000/users", function(data) {
-            var tableBody = $("#students-table");
-            tableBody.empty();
-            data.forEach(function(student) {
-                var row = "<tr>";
-                row += "<td>" + student.User_ID + "</td>";
-                row += "<td>" + student.Last_Name + "</td>";
-                row += "<td>" + student.First_Name + "</td>";
-                row += "<td>" + (student.Middle_Name || '') + "</td>";
-                row += "<td>" + (student.Group_Name || '') + "</td>";
-                row += '<td><button class="btn btn-secondary edit-btn" data-id="' + student.User_ID + '">Изменить</button></td>';
-                row += '<td><button class="btn btn-danger delete-btn" data-id="' + student.User_ID + '">Удалить</button></td>';
-                row += "</tr>";
-                tableBody.append(row);
+    function loadStudentsByGroup() {
+        $.getJSON("http://localhost:8000/users_by_group", function(data) {
+            var content = "";
+            data.forEach(function(group) {
+                content += "<h3>Группа: " + group.group_name + "</h3>";
+                content += "<table class='table table-striped'>";
+                content += "<thead><tr><th>ID</th><th>Фамилия</th><th>Имя</th><th>Отчество</th></tr></thead><tbody>";
+                group.students.forEach(function(student) {
+                    content += "<tr>";
+                    content += "<td>" + student.User_ID + "</td>";
+                    content += "<td>" + student.Last_Name + "</td>";
+                    content += "<td>" + student.First_Name + "</td>";
+                    content += "<td>" + (student.Middle_Name || '') + "</td>";
+                    content += "</tr>";
+                });
+                content += "</tbody></table>";
             });
-
-            $(".delete-btn").click(function() {
-                var userId = $(this).data("id");
-                if (confirm("Вы уверены что хотите удалить этого студента?")) {
-                    $.ajax({
-                        url: "http://localhost:8000/users/" + userId,
-                        type: "DELETE",
-                        success: function() {
-                            loadStudents();
-                            alert("Студент успешно удален!");
-                        },
-                        error: function() {
-                            alert("Произошла ошибка при удалении студента.");
-                        }
-                    });
-                }
-            });
-            
-            
+            $("#students-table").html(content);
         });
     }
 
@@ -70,13 +53,13 @@ $(document).ready(function() {
             contentType: "application/json",
             data: JSON.stringify(studentData),
             success: function() {
-                loadStudents();
+                loadStudentsByGroup();
                 resetForm();
             }
         });
     });
 
-    loadStudents();
+    loadStudentsByGroup();
     loadGroups();
 
     var app = $("#app");
@@ -103,21 +86,7 @@ $(document).ready(function() {
             <button type="submit" class="btn btn-primary">Сохранить</button>
             <button type="button" class="btn btn-secondary" onclick="resetForm()">Сбросить</button>
         </form>
-        <table class="table table-bordered mt-3">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Фамилия</th>
-                    <th>Имя</th>
-                    <th>Отчество</th>
-                    <th>Группа</th>
-                    <th>Редактирование</th>
-                    <th>Удаление</th>
-                </tr>
-            </thead>
-            <tbody id="students-table">
-            </tbody>
-        </table>
+        <div id="students-table"></div>
     `;
     app.html(content);
 });

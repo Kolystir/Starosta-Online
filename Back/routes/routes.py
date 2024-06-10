@@ -57,13 +57,20 @@ def update_student(user_id: int, student: UserUpdate, db: Session = Depends(get_
 @router.delete("/users/{user_id}", response_model=dict)
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.User_ID == user_id).first()
+    
     if user is None:
+        print(f"User with ID {user_id} not found")
         raise HTTPException(status_code=404, detail="User not found")
     
-    db.delete(user)
-    db.commit()
-    
-    return {"detail": "User deleted successfully"}
+    try:
+        db.delete(user)
+        db.commit()
+        print(f"User with ID {user_id} deleted successfully")
+        return {"detail": "User deleted successfully"}
+    except Exception as e:
+        db.rollback()
+        print(f"Error deleting user: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @router.get("/group", response_model=list[dict])
