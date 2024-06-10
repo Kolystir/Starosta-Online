@@ -70,3 +70,30 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 def read_groups(db: Session = Depends(get_db)):
     groups = db.query(GroupList).all()
     return [{"Group_ID": group.Group_ID, "Group_Name": group.Group_Name} for group in groups]
+
+
+@router.get("/users_by_group")
+def read_students_by_group(db: Session = Depends(get_db)):
+    students_by_group = db.query(User).options(joinedload(User.group).joinedload(Group.group_list)).all()
+    result = []
+    groups_dict = {}
+    
+    for student in students_by_group:
+        for grp in student.group:
+            group_name = grp.group_list.Group_Name
+            if group_name not in groups_dict:
+                groups_dict[group_name] = []
+            groups_dict[group_name].append({
+                "User_ID": student.User_ID,
+                "Last_Name": student.Last_Name,
+                "First_Name": student.First_Name,
+                "Middle_Name": student.Middle_Name,
+            })
+    
+    for group_name, students in groups_dict.items():
+        result.append({
+            "group_name": group_name,
+            "students": students
+        })
+    
+    return result

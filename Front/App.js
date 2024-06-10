@@ -22,7 +22,14 @@ $(document).ready(function() {
         // Скрипт загружен и выполнен
     });
 
-    
+     // Handle click event for "Сортировка по группам" link
+     $(document).on('click', '#sort-groups-link', function(e) {
+        e.preventDefault();
+        // Load and execute the group.js script
+        $.getScript("Front/components/group.js", function() {
+            // Скрипт загружен и выполнен
+        });
+    });
 
 
     // Handle click event for "Добавление студента" link
