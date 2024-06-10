@@ -10,7 +10,7 @@ $(document).ready(function() {
                 row += "<td>" + student.First_Name + "</td>";
                 row += "<td>" + (student.Middle_Name || '') + "</td>";
                 row += "<td>" + (student.Group_Name || '') + "</td>";
-                row += '<td><button class="btn btn-warning edit-btn" data-id="' + student.User_ID + '">Изменить</button></td>';
+                row += '<td><button class="btn btn-secondary edit-btn" data-id="' + student.User_ID + '">Изменить</button></td>';
                 row += '<td><button class="btn btn-danger delete-btn" data-id="' + student.User_ID + '">Удалить</button></td>';
                 row += "</tr>";
                 tableBody.append(row);

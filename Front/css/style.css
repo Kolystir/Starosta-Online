@@ -1,0 +1,23 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+/* Контейнер для содержимого и футера */
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Контент занимает все доступное пространство */
+.content {
+    flex: 1 0 auto;
+}
+
+/* Футер остается внизу */
+.footer {
+    flex-shrink: 0;
+    padding: 1rem;
+    background-color: #f1f1f1; /* или любой другой цвет */
+    text-align: center;
+}
