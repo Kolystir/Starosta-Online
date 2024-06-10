@@ -3,7 +3,9 @@ $(document).ready(function() {
         $.getJSON("http://localhost:8000/users_by_group", function(data) {
             var content = "";
             data.forEach(function(group) {
-                content += "<h3>Группа: " + group.group_name + "</h3>";
+                content += "<div class='card mb-4'>";
+                content += "<div class='card-header'><h3>Группа: " + group.group_name + "</h3></div>";
+                content += "<div class='card-body'>";
                 content += "<table class='table table-striped'>";
                 content += "<thead><tr><th>ID</th><th>Фамилия</th><th>Имя</th><th>Отчество</th></tr></thead><tbody>";
                 group.students.forEach(function(student) {
@@ -15,6 +17,7 @@ $(document).ready(function() {
                     content += "</tr>";
                 });
                 content += "</tbody></table>";
+                content += "</div></div>";
             });
             $("#students-table").html(content);
         });

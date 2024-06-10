@@ -5,11 +5,11 @@ from database import Base
 class User(Base):
     __tablename__ = "Users"
 
-    User_ID = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    User_ID = Column(Integer, primary_key=True, index=True)
     Last_Name = Column(String(50), nullable=False)
     First_Name = Column(String(50), nullable=False)
     Middle_Name = Column(String(50), nullable=True)
-    group = relationship("Group", back_populates="user")
+    group = relationship("Group", back_populates="user", cascade="all, delete-orphan")
 
 class GroupList(Base):
     __tablename__ = "Group_List"
@@ -26,3 +26,9 @@ class Group(Base):
     List_Group_ID = Column(Integer, ForeignKey("Group_List.Group_ID"), nullable=False)
     user = relationship("User", back_populates="group")
     group_list = relationship("GroupList", back_populates="groups")
+
+
+
+
+
+
