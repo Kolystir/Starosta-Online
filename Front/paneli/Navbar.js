@@ -10,7 +10,7 @@ $(document).ready(function() {
                   <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                       
                       <li class="nav-item">
-                          <a class="nav-link" href="#">Рапортичка</a>
+                          <a class="nav-link" href="" id="report">Рапортичка</a>
                       </li>
                       <li class="nav-item">
                           <a class="nav-link" href="#">Ведомость</a>
