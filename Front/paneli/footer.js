@@ -25,7 +25,7 @@ $(document).ready(function() {
 
               <!-- Discord -->
               <a data-mdb-ripple-init class="btn text-white btn-floating m-1"
-                  style="background-color: #00008B; border-radius: 100px;" href="#!" role="button"><i
+                  style="background-color: #00008B; border-radius: 100px;" href="" role="button"><i
                       class="fab fa-discord"><svg xmlns="http://www.w3.org/2000/svg" height="25" fill="currentColor"
                           class="bi bi-discord" viewBox="0 0 16 16">
                           <path

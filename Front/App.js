@@ -12,6 +12,14 @@ $(document).ready(function() {
             // Скрипт загружен и выполнен
         });
     });
+    // Handle click event for "Добавление учителя" link
+    $(document).on('click', '#add-teacher-link', function(e) {
+        e.preventDefault();
+        // Load and execute the crud_students.js script
+        $.getScript("Front/components/crud_teachers.js", function() {
+            // Скрипт загружен и выполнен
+        });
+    });
     // Handle click event for "Рапортичка" link
     $(document).on('click', '#report', function(e) {
         e.preventDefault();

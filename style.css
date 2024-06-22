@@ -7,10 +7,9 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
+    background-color: aqua;
 }
-.size-top {
-    margin-top: 50px;
-}
+
 /* Контент занимает все доступное пространство */
 .content {
     flex: 1 0 auto;
