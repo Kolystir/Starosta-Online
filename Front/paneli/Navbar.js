@@ -33,7 +33,7 @@ $(document).ready(function() {
                             <div class="dropdown">
                                 <i style = "font-size: 1.8rem" class="bi bi-person-circle icon fa-lg custom-icon" id="iconDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="iconDropdown">
-                                    <a class="dropdown-item" href="">Настройки</a>
+                                    <a class="dropdown-item" href="" id="settings_myself">Настройки</a>
                                     <a class="dropdown-item" id="logoutButton">Выйти</a>
                                 </div>
                             </div>

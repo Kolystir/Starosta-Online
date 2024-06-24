@@ -32,10 +32,14 @@ class UserCreate(BaseModel):
 class UserUpdate(BaseModel):
     username: str | None = None
     password: str | None = None
+    email: str | None = None
     Last_Name: str
     First_Name: str
     Middle_Name: str
     group_id: int
+
+
+
 
 # Чтение данных Студента и Преподавателя
 @router.get("/students", response_model=List[Dict])
