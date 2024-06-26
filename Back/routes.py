@@ -56,6 +56,40 @@ class StatementCreate(BaseModel):
     Reason_Reason_ID: Optional[int] = None
     Users_User_ID: int
 
+
+@router.get("/report/{group_id}/{report_date}", response_model=Dict)
+def get_report_by_date(group_id: int, report_date: date, db: Session = Depends(get_db)):
+    group = db.query(GroupList).options(joinedload(GroupList.users)).filter(GroupList.Group_ID == group_id).first()
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+
+    students = []
+    for student in group.users:
+        if student.role == "Студент":
+            student_data = {
+                "Last_Name": student.Last_Name,
+                "First_Name": student.First_Name,
+                "Middle_Name": student.Middle_Name,
+                "classes": {}
+            }
+            classes = db.query(Class).join(Statement).filter(
+                Statement.Users_User_ID == student.User_ID,
+                Class.Date == report_date
+            ).all()
+            for class_ in classes:
+                student_data["classes"][class_.Pair_number] = class_.subject.Title
+            students.append(student_data)
+
+    classes_on_date = db.query(Class).filter(Class.Date == report_date).all()
+
+    return {
+        "report": students,
+        "classes": classes_on_date
+    }
+
+
+
+
 # Создание занятия
 @router.post("/classes", response_model=Dict)
 def create_class(class_data: ClassCreate, db: Session = Depends(get_db)):
@@ -381,10 +415,31 @@ def read_students_by_group(db: Session = Depends(get_db)):
                     "First_Name": student.First_Name,
                     "Middle_Name": student.Middle_Name,
                 })
-        result.append(grp_dict)
+        result.append(grp_dict) 
     return result
 
 
+@router.get("/users_by_group/{group_id}")
+def read_students_by_groups(group_id: int, db: Session = Depends(get_db)):
+    group = db.query(GroupList).options(joinedload(GroupList.users)).filter(GroupList.Group_ID == group_id).first()
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+
+    students = []
+    for student in group.users:
+        if student.role == "Студент":
+            students.append({
+                "User_ID": student.User_ID,
+                "Last_Name": student.Last_Name,
+                "First_Name": student.First_Name,
+                "Middle_Name": student.Middle_Name,
+            })
+
+    return {
+        "group_name": group.Group_Name,
+        "group_id": group.Group_ID,
+        "students": students
+    }
 
 # Созданеи уникального токена 
 @router.post("/token")
