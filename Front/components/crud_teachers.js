@@ -135,7 +135,14 @@ $(document).ready(function () {
         $("#editModal").modal("hide");
       },
       error: function (xhr, status, error) {
-        console.error("Ошибка при создании учителя:", error);
+        if (
+          xhr.status === 400 &&
+          xhr.responseJSON.detail === "Username already taken"
+        ) {
+          $("#error-message").text("Данное имя пользователя уже занято").show();
+        } else {
+          console.error("Ошибка при создании учителя:", error);
+        }
       },
     });
   }

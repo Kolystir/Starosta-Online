@@ -35,6 +35,13 @@ $(document).ready(function() {
             // Скрипт загружен и выполнен
         });
     });
+    $(document).on('click', '#add_subject', function(e) {
+        e.preventDefault();
+        // Load and execute the crud_students.js script
+        $.getScript("Front/components/add_subject.js", function() {
+            // Скрипт загружен и выполнен
+        });
+    });
     // Подключаем файл footer.js
     $.getScript("Front/paneli/footer.js", function() {
         // Скрипт загружен и выполнен
