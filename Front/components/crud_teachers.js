@@ -133,19 +133,24 @@ $(document).ready(function () {
         loadTeachers();
         resetForm();
         $("#editModal").modal("hide");
+        $("#error-message").hide(); // скрыть сообщение об ошибке при успешной операции
       },
       error: function (xhr, status, error) {
+        console.log("XHR Status: ", xhr.status);
+        console.log("Response JSON: ", xhr.responseJSON);
         if (
           xhr.status === 400 &&
-          xhr.responseJSON.detail === "Username already taken"
+          xhr.responseJSON && xhr.responseJSON.detail === "Username already taken"
         ) {
           $("#error-message").text("Данное имя пользователя уже занято").show();
         } else {
-          console.error("Ошибка при создании учителя:", error);
+          console.error("Ошибка при создании студента:", error);
+          $("#error-message").text("Произошла ошибка при создании студента").show();
         }
       },
     });
   }
+  
 
   function updateTeacher() {
     var userId = $("#editUserId").val();
@@ -207,6 +212,7 @@ $(document).ready(function () {
                     <input type="password" class="form-control" id="password" required>
                 </div>
             </div>
+            <div id="error-message" class="alert alert-danger" style="display: none;"></div>
             <button type="submit" class="btn btn-primary">Сохранить</button>
             <button type="button" class="btn btn-secondary" id="reset-button">Сбросить</button>
         </form>
