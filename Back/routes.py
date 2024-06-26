@@ -384,16 +384,7 @@ def read_students_by_group(db: Session = Depends(get_db)):
         result.append(grp_dict)
     return result
 
-@router.get("/users_by_group")
-def get_users_by_group(group_id: int, db: Session = Depends(get_db)):
-    group = db.query(GroupList).filter(GroupList.Group_ID == group_id).first()
-    if not group:
-        raise HTTPException(status_code=404, detail="Group not found")
-    users = db.query(User).filter(User.group_id == group_id).all()
-    return {
-        "group_name": group.Group_Name,
-        "students": users
-    }
+
 
 # Созданеи уникального токена 
 @router.post("/token")

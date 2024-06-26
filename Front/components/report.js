@@ -1,5 +1,6 @@
 $(document).ready(function () {
-  // Insert HTML for the modal
+  console.log("Document is ready");
+  // Вставляем HTML код для модального окна
   $("body").append(`
       <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
           <div class="modal-dialog">
@@ -39,7 +40,9 @@ $(document).ready(function () {
   `);
 
   function loadGroups() {
+      console.log("Loading groups");
       $.getJSON("http://localhost:8000/group", function (data) {
+          console.log("Groups data received", data);
           var groupSelect = $("#editGroup");
           groupSelect.empty();
           data.forEach(function (group) {
@@ -47,7 +50,7 @@ $(document).ready(function () {
               groupSelect.append(option);
           });
 
-          // Add groups to the dropdown list for loading students
+          // Добавляем группу в выпадающий список выбора группы для загрузки студентов
           var groupSelection = $("#groupSelect");
           groupSelection.empty();
           groupSelection.append('<option value="">Выберите группу</option>');
@@ -59,7 +62,9 @@ $(document).ready(function () {
   }
 
   function loadStudentsByGroup(groupId) {
+      console.log("Loading students for group ID:", groupId);
       $.getJSON("http://localhost:8000/users_by_group?group_id=" + groupId, function (data) {
+          console.log("Students data received", data);
           var content = "";
           content += "<div class='group'>";
           content += "<h3 style='margin-top: 50px'>Группа: " + data.group_name + "</h3>";
