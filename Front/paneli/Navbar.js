@@ -27,6 +27,7 @@ $(document).ready(function() {
                                         <li><a class="dropdown-item" id="add-student-link">Добавление студента</a></li>
                                         <li><a class="dropdown-item" id="add-teacher-link">Добавление преподавателя</a></li>
                                         <li><a class="dropdown-item" id="add_subject">Добавление предмета</a></li>
+                                        <li><a class="dropdown-item" id="add_groups">Добавление группы</a></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -68,6 +69,7 @@ $(document).ready(function() {
                                         <li><a class="dropdown-item" id="add-student-link">Добавление студента</a></li>
                                         <li><a class="dropdown-item" id="add-teacher-link">Добавление преподавателя</a></li>
                                         <li><a class="dropdown-item" id="add_subject">Добавление предмета</a></li>
+                                        <li><a class="dropdown-item" id="add_groups">Добавление группы</a></li>
                                     </ul>
                                 </li>
                             </ul>

@@ -9,8 +9,9 @@ class GroupList(Base):
 
     Group_ID = Column(Integer, primary_key=True, index=True)
     Group_Name = Column(String(50), nullable=False)
-    users = relationship("User", back_populates="group", )
 
+    users = relationship("User", back_populates="group")
+    classes = relationship("Class", back_populates="group")
 
 
 class User(Base):
@@ -50,8 +51,10 @@ class Class(Base):
     Pair_number = Column(Integer, nullable=False)
     Date = Column(Date, nullable=False)
     subject_id = Column(Integer, ForeignKey(Subject.Subject_ID), nullable=False)
-    
+    Group_List_Group_ID = Column(Integer, ForeignKey(GroupList.Group_ID), nullable=False)
+
     subject = relationship("Subject", back_populates="classes")
+    group = relationship("GroupList", back_populates="classes")
     statements = relationship("Statement", back_populates="class_")
 
 
@@ -70,9 +73,9 @@ class Statement(Base):
     __tablename__ = "Statement"
 
     Statement_ID = Column(Integer, primary_key=True, index=True)
-    Presence = Column(String(10))
+    Presence = Column(String(20))
     Class_Class_ID = Column(Integer, ForeignKey(Class.Class_ID), nullable=False)
-    Reason_Reason_ID = Column(Integer, ForeignKey(Reason.Reason_ID), nullable=False)
+    Reason_Reason_ID = Column(Integer, ForeignKey(Reason.Reason_ID), nullable=True)
     Users_User_ID = Column(Integer, ForeignKey(User.User_ID), nullable=False)
 
     class_ = relationship("Class", back_populates="statements")

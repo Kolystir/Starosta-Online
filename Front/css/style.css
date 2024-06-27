@@ -55,3 +55,14 @@ body {
 .custom-icon {
     font-size: 2rem; /* Увеличьте значение для большего размера */
 }
+
+
+.option-absent {
+    background-color: red;
+    color: white;
+}
+
+.option-sick {
+    background-color: yellow;
+    color: black;
+}

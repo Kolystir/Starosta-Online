@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from database import get_db
-from models import User, GroupList, Subject, Statement, Class
+from models import User, GroupList, Subject, Statement, Class, Reason
 from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt
@@ -49,61 +49,154 @@ class ClassCreate(BaseModel):
     Pair_number: int
     Date: date
     subject_id: int
-
+    Group_List_Group_ID: int 
+    
 class StatementCreate(BaseModel):
-    Presence: str
+    Presence: str | None
     Class_Class_ID: int
-    Reason_Reason_ID: Optional[int] = None
     Users_User_ID: int
+    
+class GroupCreate(BaseModel):
+    Group_Name: str
+
+class GroupUpdate(BaseModel):
+    Group_Name: str
+    
+    
+class UpdateStatement(BaseModel):
+    presence: Optional[str] = None
+    reason: Optional[str] = None
+
+
 
 
 @router.get("/report/{group_id}/{report_date}", response_model=Dict)
-def get_report_by_date(group_id: int, report_date: date, db: Session = Depends(get_db)):
-    group = db.query(GroupList).options(joinedload(GroupList.users)).filter(GroupList.Group_ID == group_id).first()
+async def get_report(group_id: int, report_date: date, db: Session = Depends(get_db)):
+    group = db.query(GroupList).filter(GroupList.Group_ID == group_id).first()
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
 
-    students = []
-    for student in group.users:
-        if student.role == "Студент":
-            student_data = {
-                "Last_Name": student.Last_Name,
-                "First_Name": student.First_Name,
-                "Middle_Name": student.Middle_Name,
-                "classes": {}
+    users = db.query(User).filter(User.group_id == group_id, User.role == "Студент").all()
+    classes = db.query(Class).filter(Class.Group_List_Group_ID == group_id, Class.Date == report_date).all()
+
+    report = []
+    for user in users:
+        student_classes = {}
+        for cls in classes:
+            statement = db.query(Statement).filter(Statement.Class_Class_ID == cls.Class_ID, Statement.Users_User_ID == user.User_ID).first()
+            student_classes[cls.Pair_number] = {
+                "statement_id": statement.Statement_ID if statement else None,
+                "presence": statement.Presence if statement else None,
+                "reason": statement.reason.Description if statement and statement.reason else None,
+                "Class_Class_ID": cls.Class_ID,  # добавляем Class_Class_ID
+                "Users_User_ID": user.User_ID  # добавляем Users_User_ID
             }
-            classes = db.query(Class).join(Statement).filter(
-                Statement.Users_User_ID == student.User_ID,
-                Class.Date == report_date
-            ).all()
-            for class_ in classes:
-                student_data["classes"][class_.Pair_number] = class_.subject.Title
-            students.append(student_data)
+        report.append({
+            "Last_Name": user.Last_Name,
+            "First_Name": user.First_Name,
+            "Middle_Name": user.Middle_Name,
+            "classes": student_classes
+        })
 
-    classes_on_date = db.query(Class).filter(Class.Date == report_date).all()
+    subjects = {cls.Pair_number: cls.subject.Title for cls in classes}
+    return {"subjects": subjects, "report": report}
 
+
+
+
+
+@router.put("/statement/{statement_id}")
+def update_statement(statement_id: int, update_data: UpdateStatement, db: Session = Depends(get_db)):
+    statement = db.query(Statement).filter(Statement.Statement_ID == statement_id).first()
+    if not statement:
+        raise HTTPException(status_code=404, detail=f"Statement with id {statement_id} not found")
+
+    if update_data.presence is not None:
+        statement.presence = update_data.presence
+
+    # Если причина не указана, устанавливаем её как None
+    if update_data.reason is not None:
+        statement.reason_Reason_ID = update_data.reason
+    else:
+        statement.reason_Reason_ID = None
+
+    db.commit()
+    return {"message": "Statement updated successfully"}
+
+
+@router.post("/groups", response_model=Dict)
+def create_group(group: GroupCreate, db: Session = Depends(get_db)):
+    # Проверка, существует ли уже группа с таким именем
+    existing_group = db.query(GroupList).filter(GroupList.Group_Name == group.Group_Name).first()
+    if existing_group:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Group name already exists"
+        )
+
+    # Создание новой группы
+    new_group = GroupList(Group_Name=group.Group_Name)
+    db.add(new_group)
+    db.commit()
+    db.refresh(new_group)
+    
     return {
-        "report": students,
-        "classes": classes_on_date
+        "Group_ID": new_group.Group_ID,
+        "Group_Name": new_group.Group_Name
     }
 
 
+@router.put("/groups/{group_id}", response_model=Dict)
+def update_group(group_id: int, group: GroupCreate, db: Session = Depends(get_db)):
+    db_group = db.query(GroupList).filter(GroupList.Group_ID == group_id).first()
+    if not db_group:
+        raise HTTPException(status_code=404, detail="Group not found")
+    
+    # Обновляем поля, только если они не равны None
+    update_data = group.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_group, key, value)
+
+    db.commit()
+    db.refresh(db_group)
+    
+    return {"message": "Group updated successfully"}
+
+@router.delete("/groups/{group_id}", response_model=Dict)
+def delete_group(group_id: int, db: Session = Depends(get_db)):
+    db_group = db.query(GroupList).filter(GroupList.Group_ID == group_id).first()
+    if not db_group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Group not found"
+        )
+
+    db.delete(db_group)
+    db.commit()
+    
+    return {
+        "detail": "Group deleted successfully"
+    }
 
 
 # Создание занятия
-@router.post("/classes", response_model=Dict)
-def create_class(class_data: ClassCreate, db: Session = Depends(get_db)):
-    class_dict = class_data.dict()
-    db_class = Class(**class_dict)
-    db.add(db_class)
-    db.commit()
-    db.refresh(db_class)
-    return {
-        "Class_ID": db_class.Class_ID,
-        "Pair_number": db_class.Pair_number,
-        "Date": db_class.Date,
-        "subject_id": db_class.subject_id
-    }
+@router.post("/classes", response_model=List[Dict])
+def create_classes(classes_data: List[ClassCreate], db: Session = Depends(get_db)):
+    created_classes = []
+    for class_data in classes_data:
+        class_dict = class_data.dict()
+        db_class = Class(**class_dict)
+        db.add(db_class)
+        db.commit()
+        db.refresh(db_class)
+        created_classes.append({
+            "Class_ID": db_class.Class_ID,
+            "Pair_number": db_class.Pair_number,
+            "Date": db_class.Date,
+            "subject_id": db_class.subject_id,
+            "Group_List_Group_ID": db_class.Group_List_Group_ID
+        })
+    return created_classes
 
 # Чтение данных о занятиях
 @router.get("/classes", response_model=List[Dict])
@@ -115,7 +208,8 @@ def read_classes(db: Session = Depends(get_db)):
             "Class_ID": class_.Class_ID,
             "Pair_number": class_.Pair_number,
             "Date": class_.Date,
-            "subject_id": class_.subject_id
+            "subject_id": class_.subject_id,
+            "Group_List_Group_ID": class_.Group_List_Group_ID
         })
     return result
 
@@ -131,7 +225,6 @@ def create_statement(statement: StatementCreate, db: Session = Depends(get_db)):
         "Statement_ID": db_statement.Statement_ID,
         "Presence": db_statement.Presence,
         "Class_Class_ID": db_statement.Class_Class_ID,
-        "Reason_Reason_ID": db_statement.Reason_Reason_ID,
         "Users_User_ID": db_statement.Users_User_ID
     }
 

@@ -5,6 +5,14 @@ $(document).ready(function() {
     });
 
     // Handle click event for "Добавление студента" link
+    $(document).on('click', '#add_groups', function(e) {
+        e.preventDefault();
+        // Load and execute the crud_students.js script
+        $.getScript("Front/components/add_groups.js", function() {
+            // Скрипт загружен и выполнен
+        });
+    });
+    // Handle click event for "Добавление студента" link
     $(document).on('click', '#add-student-link', function(e) {
         e.preventDefault();
         // Load and execute the crud_students.js script
