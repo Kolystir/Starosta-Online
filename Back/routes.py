@@ -81,7 +81,12 @@ async def get_report_range(group_id: int, start_date: date, end_date: date, db: 
     if not classes:
         raise HTTPException(status_code=404, detail="No classes found for the given date range")
 
-    missing_dates = set((start_date + timedelta(days=i)).isoformat() for i in range((end_date - start_date).days + 1))
+    def is_sunday(d):
+        return d.weekday() == 6
+
+    missing_dates = set((start_date + timedelta(days=i)).isoformat() 
+                        for i in range((end_date - start_date).days + 1) 
+                        if not is_sunday(start_date + timedelta(days=i)))
     missing_dates -= {cls.Date.isoformat() for cls in classes}
 
     if missing_dates:
@@ -90,24 +95,60 @@ async def get_report_range(group_id: int, start_date: date, end_date: date, db: 
     report = []
     for user in users:
         student_classes = {}
+        daily_absences = {}
         for cls in classes:
+            date_str = cls.Date.isoformat()
+            if is_sunday(cls.Date):
+                continue
+            
             statement = db.query(Statement).filter(Statement.Class_Class_ID == cls.Class_ID, Statement.Users_User_ID == user.User_ID).first()
-            student_classes[cls.Date.isoformat()] = {
+            reason_description = statement.reason.Description if statement and statement.reason else ""
+
+            if date_str not in daily_absences:
+                daily_absences[date_str] = {"уважительная": 0, "неуважительная": 0}
+
+            if statement is not None and str(statement.Presence) == "Н":
+                hours = 2  # 1 пара = 2 часа
+                if reason_description in ["Б", "УВ"]:
+                    daily_absences[date_str]["уважительная"] += hours
+                else:
+                    daily_absences[date_str]["неуважительная"] += hours
+
+            elif statement is not None and str(statement.Presence) in ["Б", "УВ"]:
+                hours = 2  # 1 пара = 2 часа
+                daily_absences[date_str]["уважительная"] += hours
+
+            if date_str not in student_classes:
+                student_classes[date_str] = []
+
+            student_classes[date_str].append({
                 "statement_id": statement.Statement_ID if statement else None,
                 "presence": statement.Presence if statement else None,
-                "reason": statement.reason.Description if statement and statement.reason else None,
+                "reason": reason_description,
                 "Class_Class_ID": cls.Class_ID,
                 "Users_User_ID": user.User_ID
-            }
+            })
+
         report.append({
             "Last_Name": user.Last_Name,
             "First_Name": user.First_Name,
             "Middle_Name": user.Middle_Name,
-            "classes": student_classes
+            "classes": student_classes,
+            "daily_absences": daily_absences
         })
 
-    subjects = {cls.Date.isoformat(): {cls.Pair_number: cls.subject.Title} for cls in classes}
+    subjects = {}
+    for cls in classes:
+        date_str = cls.Date.isoformat()
+        if is_sunday(cls.Date):
+            continue
+
+        if date_str not in subjects:
+            subjects[date_str] = {}
+        subjects[date_str][cls.Pair_number] = cls.subject.Title
+
     return {"subjects": subjects, "report": report}
+
 
 
 

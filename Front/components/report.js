@@ -128,7 +128,8 @@ $(document).ready(function () {
                             var presenceOptions = `
                                 <select class="form-control presence-select" data-class-id="${classInfo.Class_Class_ID}" data-user-id="${classInfo.Users_User_ID}">
                                     <option value="Присутствует" ${classInfo.presence === null ? 'selected' : ''}>Присутствует</option>
-                                    <option value="Н" ${classInfo.presence === 'Н' ? 'selected' : ''} class="option-absent">Отсутствует</option>
+                                    <option value="Н" ${classInfo.presence === 'Н' ? 'selected' : ''} class="option-absent">Отс. по неуваж.</option>
+                                    <option value="УВ" ${classInfo.presence === 'УВ' ? 'selected' : ''} class="option-absent">Отс. по уваж.</option>
                                     <option value="Б" ${classInfo.presence === 'Б' ? 'selected' : ''} class="option-sick">Болеет</option>
                                 </select>
                             `;
@@ -191,7 +192,6 @@ $(document).ready(function () {
             contentType: "application/json",
             success: function (response) {
                 console.log(response);
-                alert("Присутствие успешно добавлено");
             },
             error: function (error) {
                 console.log(error);
@@ -224,10 +224,10 @@ $(document).ready(function () {
             contentType: "application/json",
             success: function (response) {
                 console.log("Response:", response);
-                alert("Всё успешно!");
-                window.location.reload();
+                loadReport(groupId, date);
                 $("#createClassModal").modal('hide');
                 $("#successModal").modal('show');
+
             },
             error: function (error) {
                 console.log("Error:", error);
