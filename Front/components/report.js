@@ -117,7 +117,10 @@ $(document).ready(function () {
                 });
     
                 content += "</tr></thead><tbody>";
-    
+
+                // Сортировка студентов по фамилии
+                data.report.sort((a, b) => a.Last_Name.localeCompare(b.Last_Name));
+
                 data.report.forEach(function (student) {
                     content += "<tr>";
                     content += `<td>${student.Last_Name} ${student.First_Name[0]}. ${student.Middle_Name ? student.Middle_Name[0] + '.' : ''}</td>`;
@@ -172,14 +175,6 @@ $(document).ready(function () {
             }
         });
     }
-    
-    
-    
-
-
-
-    
-
 
     function createStatement(statementData) {
         console.log("Отправляемые данные на сервер:", statementData); // Выводим данные в консоль перед отправкой
@@ -199,8 +194,6 @@ $(document).ready(function () {
             }
         });
     }
-    
-    
 
     function createClasses(groupId, date) {
         var numPairs = $("#numPairs").val();
@@ -235,7 +228,6 @@ $(document).ready(function () {
             }
         });
     }
-    
 
     $("#numPairs").on('change', function () {
         var numPairs = $(this).val();
@@ -269,3 +261,4 @@ $(document).ready(function () {
     loadGroups();
     loadSubjects();
 });
+ 

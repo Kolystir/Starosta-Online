@@ -12,14 +12,18 @@ $(document).ready(function () {
         content +=
           "<table class='table table-striped fixed-table' style='width: 100%;'>";
         content += "<thead><tr>";
-        content += "<th class='id-col'>ID</th>";
+        content += "<th class='number-col'>№</th>"; // Заменяем ID на номер
         content += "<th class='last-name-col'>Фамилия</th>";
         content += "<th class='first-name-col'>Имя</th>";
         content += "<th class='middle-name-col'>Отчество</th>";
         content += "</tr></thead><tbody>";
-        group.students.forEach(function (student) {
+
+        // Сортировка студентов по фамилии
+        group.students.sort((a, b) => a.Last_Name.localeCompare(b.Last_Name));
+
+        group.students.forEach(function (student, index) {
           content += "<tr>";
-          content += "<td class='id-col'>" + student.User_ID + "</td>";
+          content += "<td class='number-col'>" + (index + 1) + "</td>"; // Порядковый номер студента
           content += "<td class='last-name-col'>" + student.Last_Name + "</td>";
           content +=
             "<td class='first-name-col'>" + student.First_Name + "</td>";
@@ -29,6 +33,7 @@ $(document).ready(function () {
             "</td>";
           content += "</tr>";
         });
+
         content += "</tbody></table>";
         content += "</div></div>";
       });
@@ -95,13 +100,13 @@ $(document).ready(function () {
         }
       },
     });
-}
+  }
 
   loadStudentsByGroup();
   loadGroups();
 
   var app = $("#app");
-var content = `
+  var content = `
     <h1 class="mt-5">Добавление студента!</h1>
     <form id="student-form" class="mb-3">
         <input type="hidden" id="student-id">
@@ -140,8 +145,8 @@ var content = `
         <button type="button" class="btn btn-secondary" id="reset-button">Сбросить</button>
     </form>
     <div id="students-table"></div>
-`;
-app.html(content);
+  `;
+  app.html(content);
 
   $("#student-form").on("submit", createStudent); // обработка отправки формы
   $("#reset-button").on("click", resetForm); // обработка сброса формы
