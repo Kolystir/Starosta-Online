@@ -14,7 +14,7 @@ $(document).ready(function() {
                                     <a class="nav-link" href="" id="report">Рапортичка</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="">Ведомость</a>
+                                    <a class="nav-link" href="" id="vedomost">Ведомость</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="" id="sort-groups-link">Группа</a>
@@ -56,7 +56,7 @@ $(document).ready(function() {
                                     <a class="nav-link" href="" id="report">Рапортичка</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="">Ведомость</a>
+                                    <a class="nav-link" href="" id="vedomost">Ведомость</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="" id="sort-groups-link">Группа</a>

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from sqlalchemy import select
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from passlib.context import CryptContext
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
@@ -66,6 +66,49 @@ class GroupUpdate(BaseModel):
 class UpdateStatement(BaseModel):
     presence: Optional[str] = None
     reason: Optional[str] = None
+
+
+
+@router.get("/report/{group_id}/{start_date}/{end_date}", response_model=Dict[str, Any])
+async def get_report_range(group_id: int, start_date: date, end_date: date, db: Session = Depends(get_db)):
+    group = db.query(GroupList).filter(GroupList.Group_ID == group_id).first()
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+
+    users = db.query(User).filter(User.group_id == group_id, User.role == "Студент").all()
+    classes = db.query(Class).filter(Class.Group_List_Group_ID == group_id, Class.Date.between(start_date, end_date)).all()
+
+    if not classes:
+        raise HTTPException(status_code=404, detail="No classes found for the given date range")
+
+    missing_dates = set((start_date + timedelta(days=i)).isoformat() for i in range((end_date - start_date).days + 1))
+    missing_dates -= {cls.Date.isoformat() for cls in classes}
+
+    if missing_dates:
+        return {"missing_dates": list(missing_dates)}
+
+    report = []
+    for user in users:
+        student_classes = {}
+        for cls in classes:
+            statement = db.query(Statement).filter(Statement.Class_Class_ID == cls.Class_ID, Statement.Users_User_ID == user.User_ID).first()
+            student_classes[cls.Date.isoformat()] = {
+                "statement_id": statement.Statement_ID if statement else None,
+                "presence": statement.Presence if statement else None,
+                "reason": statement.reason.Description if statement and statement.reason else None,
+                "Class_Class_ID": cls.Class_ID,
+                "Users_User_ID": user.User_ID
+            }
+        report.append({
+            "Last_Name": user.Last_Name,
+            "First_Name": user.First_Name,
+            "Middle_Name": user.Middle_Name,
+            "classes": student_classes
+        })
+
+    subjects = {cls.Date.isoformat(): {cls.Pair_number: cls.subject.Title} for cls in classes}
+    return {"subjects": subjects, "report": report}
+
 
 
 
