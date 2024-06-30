@@ -528,24 +528,19 @@ def update_teachers(user_id: int, teacher: UserUpdate, db: Session = Depends(get
     return db_teacher
 
 # Удаление данных Студента и Преподавателя
-@router.delete("/students/{user_id}", )
-def delete_user(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.User_ID == user_id).first()
-    
-    if user is None:
-        print(f"User with ID {user_id} not found")
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    try:
-        db.delete(user)
+@router.delete("/students/{student_id}")
+def delete_student(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(User).filter(User.User_ID == student_id).first()
+    if student:
+        # Удаляем все связанные записи в таблице Statement
+        db.query(Statement).filter(Statement.Users_User_ID == student_id).delete(synchronize_session=False)
+        
+        # Теперь удаляем самого студента
+        db.delete(student)
         db.commit()
-        print(f"User with ID {user_id} deleted successfully")
-        return {"detail": "User deleted successfully"}
-    except Exception as e:
-        db.rollback()
-        print(f"Error deleting user: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-    
+        return {"message": f"Студент с ID {student_id} успешно удален"}
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Студент с ID {student_id} не найден")
+
     
 @router.delete("/teachers/{user_id}", )
 def delete_teachers(user_id: int, db: Session = Depends(get_db)):
