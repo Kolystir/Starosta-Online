@@ -46,7 +46,7 @@ $(document).ready(function () {
 
     function loadReport(groupId, startDate, endDate) {
         $.getJSON(`http://localhost:8000/report/${groupId}/${startDate}/${endDate}`, function (data) {
-            console.log("Загруженные данные:", data);
+
 
             if (!data.report || !data.report.length) {
                 alert("На выбранный диапазон дат нет занятий.");
@@ -81,8 +81,12 @@ $(document).ready(function () {
                 }
             });
 
+            
+
             content += "<th>Итог</th>";
             content += "</tr></thead><tbody>";
+
+            data.report.sort((a, b) => a.Last_Name.localeCompare(b.Last_Name));
 
             var totalValidAll = 0;
             var totalInvalidAll = 0;
