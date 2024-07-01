@@ -2,29 +2,29 @@ $(document).ready(function () {
     function loadTeachers() {
         $.getJSON("http://localhost:8000/teachers", function (data) {
             data.sort((a, b) => a.Last_Name.localeCompare(b.Last_Name));
-  
+
             var content = "<div class='card mb-4'>";
+            content += "<div class='card-header bg-primary text-white'>Учителя</div>";
             content += "<div class='card-body'>";
-            content +=
-                "<table class='table table-striped fixed-table' style='width: 100%;'>";
-            content += "<thead><tr>";
-            content += "<th class='id-col'>№</th>";
-            content += "<th class='last-name-col'>Фамилия</th>";
-            content += "<th class='first-name-col'>Имя</th>";
-            content += "<th class='middle-name-col'>Отчество</th>";
-            content += "<th class='group-col'>Классный руководитель группы</th>";
-            content += "<th class='edit-col'>Редактирование</th>";
-            content += "<th class='delete-col'>Удаление</th>";
+            content += "<table class='table table-hover table-bordered' style='width: 100%;'>";
+            content += "<thead class='thead-light'><tr>";
+            content += "<th class='text-center'>№</th>";
+            content += "<th class='text-center'>Фамилия</th>";
+            content += "<th class='text-center'>Имя</th>";
+            content += "<th class='text-center'>Отчество</th>";
+            content += "<th class='text-center'>Классный руководитель группы</th>";
+            content += "<th class='text-center'>Редактирование</th>";
+            content += "<th class='text-center'>Удаление</th>";
             content += "</tr></thead><tbody>";
             data.forEach(function (teacher, index) {
                 content += "<tr>";
-                content += "<td class='id-col'>" + (index + 1) + "</td>";
-                content += "<td class='last-name-col'>" + teacher.Last_Name + "</td>";
-                content += "<td class='first-name-col'>" + teacher.First_Name + "</td>";
-                content += "<td class='middle-name-col'>" + (teacher.Middle_Name || "") + "</td>";
-                content += "<td class='group-col'>" + (teacher.Group_Name || "—") + "</td>";
+                content += "<td class='text-center'>" + (index + 1) + "</td>";
+                content += "<td class='text-center'>" + teacher.Last_Name + "</td>";
+                content += "<td class='text-center'>" + teacher.First_Name + "</td>";
+                content += "<td class='text-center'>" + (teacher.Middle_Name || "") + "</td>";
+                content += "<td class='text-center'>" + (teacher.Group_Name || "—") + "</td>";
                 content +=
-                    '<td class="edit-col"><button class="btn btn-secondary edit-btn" data-id="' +
+                    '<td class="text-center"><button class="btn btn-warning btn-sm edit-btn" data-id="' +
                     teacher.User_ID +
                     '" data-first-name="' +
                     teacher.First_Name +
@@ -38,7 +38,7 @@ $(document).ready(function () {
                     teacher.username +
                     '"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/></svg></button></td>';
                 content +=
-                    '<td class="delete-col"><button class="btn btn-danger delete-btn" data-id="' +
+                    '<td class="text-center"><button class="btn btn-danger btn-sm delete-btn" data-id="' +
                     teacher.User_ID +
                     '"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg></button></td>';
                 content += "</tr>";
@@ -46,7 +46,7 @@ $(document).ready(function () {
             content += "</tbody></table>";
             content += "</div></div>";
             $("#teachers-table").html(content);
-  
+
             $(".delete-btn").click(function () {
                 var userId = $(this).data("id");
                 if (confirm("Вы уверены что хотите удалить этого учителя?")) {
@@ -63,7 +63,7 @@ $(document).ready(function () {
                     });
                 }
             });
-  
+
             $(".edit-btn").click(function () {
                 var userId = $(this).data("id");
                 var firstName = $(this).data("first-name");
@@ -71,7 +71,7 @@ $(document).ready(function () {
                 var middleName = $(this).data("middle-name");
                 var groupId = $(this).data("group-id");
                 var username = $(this).data("username");
-  
+
                 // Заполнить поля модального окна
                 $("#editUserId").val(userId);
                 $("#editFirstName").val(firstName);
@@ -79,13 +79,13 @@ $(document).ready(function () {
                 $("#editMiddleName").val(middleName);
                 $("#editGroup").val(groupId);
                 $("#editUsername").val(username);
-  
+
                 // Показать модальное окно
                 $("#editModal").modal("show");
             });
         });
     }
-  
+
     function loadGroups() {
         $.getJSON("http://localhost:8000/group", function (data) {
             var groupSelect = $("#group-select, #editGroup");
@@ -102,12 +102,12 @@ $(document).ready(function () {
             });
         });
     }
-  
+
     function resetForm() {
         $("#teacher-form")[0].reset();
         $("#teacher-id").val("");
     }
-  
+
     function createTeacher(event) {
         event.preventDefault();
         var teacherId = $("#teacher-id").val();
@@ -152,7 +152,7 @@ $(document).ready(function () {
             },
         });
     }
-  
+
     function updateTeacher() {
         var userId = $("#editUserId").val();
         var groupId = $("#editGroup").val() || null; // Передаем null, если группа не выбрана
@@ -178,7 +178,7 @@ $(document).ready(function () {
             },
         });
     }
-  
+
     var app = $("#app");
     var content = `
         <h1 class="mt-5">Добавление учителя!</h1>
@@ -219,7 +219,7 @@ $(document).ready(function () {
             <button type="button" class="btn btn-secondary" id="reset-button">Сбросить</button>
         </form>
         <div id="teachers-table"></div>
-        
+
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -257,12 +257,11 @@ $(document).ready(function () {
         </div>
     `;
     app.html(content);
-  
+
     $("#teacher-form").on("submit", createTeacher); // обработка отправки формы
     $("#reset-button").on("click", resetForm); // обработка сброса формы
     $("#saveBtn").on("click", updateTeacher); // обработка сохранения в модальном окне
-  
+
     loadTeachers();
     loadGroups();
-  });
-  
+});
