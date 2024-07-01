@@ -29,7 +29,7 @@ class UserCreate(BaseModel):
     Middle_Name: str
     username: str
     password: str
-    group_id: int
+    group_id: Optional[int] = None
 
 class UserUpdate(BaseModel):
     username: str | None = None
@@ -38,7 +38,7 @@ class UserUpdate(BaseModel):
     Last_Name: str
     First_Name: str
     Middle_Name: str
-    group_id: int 
+    group_id: Optional[int] = None 
 
 class SubjectCreate(BaseModel):
     Title: str
@@ -443,9 +443,10 @@ def read_teachers(db: Session = Depends(get_db)):
             "Last_Name": teacher.Last_Name,
             "First_Name": teacher.First_Name,
             "Middle_Name": teacher.Middle_Name,
-            "Group_Name": teacher.group.Group_Name
+            "Group_Name": teacher.group.Group_Name if teacher.group else None  # Проверка на None
         })
     return result
+
 
 
 # Создание Студента и Преподавателя
@@ -468,7 +469,6 @@ def create_student(student: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/teachers")
 def create_teacher(teacher: UserCreate, db: Session = Depends(get_db)):
-    # Проверка на существование имени пользователя
     existing_user = db.query(User).filter(User.username == teacher.username).first()
     if existing_user:
         return JSONResponse(
@@ -508,15 +508,15 @@ def update_student(user_id: int, student: UserUpdate, db: Session = Depends(get_
 
 
 
-@router.put("/teachers/{user_id}",)
+@router.put("/teachers/{user_id}")
 def update_teachers(user_id: int, teacher: UserUpdate, db: Session = Depends(get_db)):
     db_teacher = db.query(User).filter(User.User_ID == user_id).first()
     if not db_teacher:
-        raise HTTPException(status_code=404, detail="teacher not found")
+        raise HTTPException(status_code=404, detail="Teacher not found")
     
     # Шифруем пароль, если он указан
     if teacher.password:
-        teacher.password = ctx.encrypt(teacher.password)
+        teacher.password = ctx.hash(teacher.password)
     
     # Обновляем поля, только если они не равны None
     update_data = teacher.dict(exclude_unset=True)
