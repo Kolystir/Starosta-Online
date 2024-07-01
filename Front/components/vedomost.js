@@ -47,7 +47,6 @@ $(document).ready(function () {
     function loadReport(groupId, startDate, endDate) {
         $.getJSON(`http://localhost:8000/report/${groupId}/${startDate}/${endDate}`, function (data) {
 
-
             if (!data.report || !data.report.length) {
                 alert("На выбранный диапазон дат нет занятий.");
                 $("#vedomosSelectGroupDateModal").modal('show');
