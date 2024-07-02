@@ -68,15 +68,6 @@ class UpdateStatement(BaseModel):
     reason: Optional[str] = None
 
 
-class AbsenceResponse(BaseModel):
-    Statement_ID: int
-    Date: date
-    Subject: str
-    Reason: Optional[str]
-
-    class Config:
-        orm_mode = True
-
 
 @router.post("/admin")
 def create_admin(student: UserCreate, db: Session = Depends(get_db)):
@@ -95,33 +86,6 @@ def create_admin(student: UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_student)
     return db_student
 
-
-@router.get("/student_absences/{user_id}", response_model=List[AbsenceResponse])
-async def get_student_absences(user_id: int, db: Session = Depends(get_db)):
-    absences = db.query(
-        Statement.Statement_ID,
-        Class.Date,
-        Subject.Title,
-        Reason.Description
-    ).join(Class, Statement.Class_Class_ID == Class.Class_ID)\
-    .join(Subject, Class.subject_id == Subject.Subject_ID)\
-    .outerjoin(Reason, Statement.Reason_Reason_ID == Reason.Reason_ID)\
-    .filter(Statement.Users_User_ID == user_id, Statement.Presence == "absence")\
-    .all()
-
-    if not absences:
-        raise HTTPException(status_code=404, detail="No absences found for the given user_id")
-
-    response_data = []
-    for absence in absences:
-        response_data.append(AbsenceResponse(
-            Statement_ID=absence[0],
-            Date=absence[1],
-            Subject=absence[2],
-            Reason=absence[3] if absence[3] else None
-        ))
-
-    return response_data
 
 
 
