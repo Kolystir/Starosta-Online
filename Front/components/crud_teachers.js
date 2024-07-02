@@ -4,7 +4,7 @@ $(document).ready(function () {
             data.sort((a, b) => a.Last_Name.localeCompare(b.Last_Name));
 
             var content = "<div class='card mb-4'>";
-            content += "<div class='card-header bg-primary text-white'>Учителя</div>";
+            content += "<div class='card-header bg-primary text-white'>Преподавателя</div>";
             content += "<div class='card-body'>";
             content += "<table class='table table-hover table-bordered' style='width: 100%;'>";
             content += "<thead class='thead-light'><tr>";
@@ -181,7 +181,7 @@ $(document).ready(function () {
 
     var app = $("#app");
     var content = `
-        <h1 class="mt-5">Добавление учителя!</h1>
+        <h1 class="mt-5">Добавление преподавателя!</h1>
         <form id="teacher-form" class="mb-3">
             <input type="hidden" id="teacher-id">
             <div class="form-row">
