@@ -147,6 +147,8 @@ $(document).ready(function() {
             $.getScript("Front/components/report.js");
         } else if (localStorage.getItem("role") === "Староста") {
             $.getScript("Front/components/report.js");
+        } else if (localStorage.getItem("role") === "Админ") {
+            $.getScript("Front/components/crud_teachers.js");
         }
     }
   
