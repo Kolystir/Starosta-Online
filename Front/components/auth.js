@@ -142,9 +142,11 @@ $(document).ready(function() {
   
     function loadMainContent() {
         if (localStorage.getItem("role") === "Студент") {
-            $.getScript("Front/components/crud_students.js");
+            $.getScript("Front/components/group.js");
         } else if (localStorage.getItem("role") === "Преподаватель") {
-            $.getScript("Front/components/crud_teachers.js");
+            $.getScript("Front/components/report.js");
+        } else if (localStorage.getItem("role") === "Староста") {
+            $.getScript("Front/components/report.js");
         }
     }
   

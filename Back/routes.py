@@ -68,6 +68,62 @@ class UpdateStatement(BaseModel):
     reason: Optional[str] = None
 
 
+class AbsenceResponse(BaseModel):
+    Statement_ID: int
+    Date: date
+    Subject: str
+    Reason: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
+@router.post("/admin")
+def create_admin(student: UserCreate, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.username == student.username).first()
+    if existing_user:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"detail": "Username already taken"}
+        )
+    st_dict = student.dict()
+    st_dict["role"] = "Админ"
+    st_dict["password"] = ctx.hash(st_dict["password"])
+    db_student = User(**st_dict)
+    db.add(db_student)
+    db.commit()
+    db.refresh(db_student)
+    return db_student
+
+
+@router.get("/student_absences/{user_id}", response_model=List[AbsenceResponse])
+async def get_student_absences(user_id: int, db: Session = Depends(get_db)):
+    absences = db.query(
+        Statement.Statement_ID,
+        Class.Date,
+        Subject.Title,
+        Reason.Description
+    ).join(Class, Statement.Class_Class_ID == Class.Class_ID)\
+    .join(Subject, Class.subject_id == Subject.Subject_ID)\
+    .outerjoin(Reason, Statement.Reason_Reason_ID == Reason.Reason_ID)\
+    .filter(Statement.Users_User_ID == user_id, Statement.Presence == "absence")\
+    .all()
+
+    if not absences:
+        raise HTTPException(status_code=404, detail="No absences found for the given user_id")
+
+    response_data = []
+    for absence in absences:
+        response_data.append(AbsenceResponse(
+            Statement_ID=absence[0],
+            Date=absence[1],
+            Subject=absence[2],
+            Reason=absence[3] if absence[3] else None
+        ))
+
+    return response_data
+
+
 
 @router.get("/report/{group_id}/{start_date}/{end_date}", response_model=Dict[str, Any])
 async def get_report_range(group_id: int, start_date: date, end_date: date, db: Session = Depends(get_db)):
@@ -75,7 +131,7 @@ async def get_report_range(group_id: int, start_date: date, end_date: date, db: 
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
 
-    users = db.query(User).filter(User.group_id == group_id, User.role == "Студент").all()
+    users = db.query(User).filter(User.group_id == group_id, User.role.in_(["Студент", "Староста"])).all()
     classes = db.query(Class).filter(Class.Group_List_Group_ID == group_id, Class.Date.between(start_date, end_date)).all()
 
     if not classes:
@@ -160,7 +216,7 @@ async def get_report(group_id: int, report_date: date, db: Session = Depends(get
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
 
-    users = db.query(User).filter(User.group_id == group_id, User.role == "Студент").all()
+    users = db.query(User).filter(User.group_id == group_id, User.role.in_(["Студент", "Староста"])).all()
     classes = db.query(Class).filter(Class.Group_List_Group_ID == group_id, Class.Date == report_date).all()
 
     report = []
@@ -580,7 +636,7 @@ def read_students_by_group(db: Session = Depends(get_db)):
     for grp in groups:
         grp_dict = {"group_name": grp.Group_Name, "students": []}
         for student in grp.users:
-            if student.role == "Студент":
+            if student.role in ["Студент", "Староста"]:
                 grp_dict["students"].append({
                     "User_ID": student.User_ID,
                     "Last_Name": student.Last_Name,
@@ -599,7 +655,7 @@ def read_students_by_groups(group_id: int, db: Session = Depends(get_db)):
 
     students = []
     for student in group.users:
-        if student.role == "Студент":
+        if student.role in ["Студент", "Староста"]:
             students.append({
                 "User_ID": student.User_ID,
                 "Last_Name": student.Last_Name,
